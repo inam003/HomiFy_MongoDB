@@ -1,7 +1,7 @@
 const Home = require("../models/home");
 
 exports.getHostHomes = (req, res) => {
-  Home.fetchAll().then((registeredHomes) => {
+  Home.find().then((registeredHomes) => {
     res.render("host/host-home-list", {
       registeredHomes: registeredHomes,
       title: "Host Homes List",
@@ -37,14 +37,14 @@ exports.getEditHome = (req, res) => {
 
 exports.postAddHome = (req, res) => {
   const { houseName, price, location, rating, photo, description } = req.body;
-  const homes = new Home(
+  const homes = new Home({
     houseName,
     price,
     location,
     rating,
     photo,
-    description
-  );
+    description,
+  });
   homes.save().then(() => {
     console.log("Home added successfully");
   });
@@ -54,31 +54,35 @@ exports.postAddHome = (req, res) => {
 exports.postEditHome = (req, res) => {
   const { id, houseName, price, location, rating, photo, description } =
     req.body;
-  const home = new Home(
-    houseName,
-    price,
-    location,
-    rating,
-    photo,
-    description,
-    id
-  );
-  home
-    .save()
-    .then((result) => {
-      console.log("Home updated successfully:", result);
+  Home.findById(id)
+    .then((home) => {
+      home.houseName = houseName;
+      home.price = price;
+      home.location = location;
+      home.rating = rating;
+      home.photo = photo;
+      home.description = description;
+      home
+        .save()
+        .then(() => {
+          console.log("Home updated successfully");
+        })
+        .catch((error) => {
+          console.log("Error updating home:", error);
+        });
       res.redirect("/host/host-home-list");
     })
-    .catch((err) => {
-      console.log("Error updating home:", err);
+    .catch((error) => {
+      console.log("Error fetching home for editing:", error);
       res.redirect("/host/host-home-list");
     });
 };
 
 exports.postDeleteHome = (req, res) => {
   const homeId = req.params.id;
-  Home.deleteById(homeId)
+  Home.findByIdAndDelete(homeId)
     .then(() => {
+      console.log("Home deleted successfully");
       res.redirect("/host/host-home-list");
     })
     .catch((error) => {
