@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
+const { authRouter } = require("./routes/authRouter");
 const { pageNotFound } = require("./controllers/errorController");
 const { default: mongoose } = require("mongoose");
 
@@ -12,8 +13,26 @@ app.set("views", "views");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded());
+
+app.use((req, res, next) => {
+  console.log(req.get("Cookie"));
+  req.isLoggedIn = req.get("Cookie")
+    ? req.get("Cookie").split("=")[1] === "true"
+    : false;
+  next();
+});
+
+app.use(authRouter);
 app.use(storeRouter);
+app.use((req, res, next) => {
+  if (req.isLoggedIn) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+});
 app.use("/host", hostRouter);
+app.use(authRouter);
 
 app.use(pageNotFound);
 
