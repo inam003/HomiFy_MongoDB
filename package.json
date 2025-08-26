@@ -15,9 +15,11 @@
   "dependencies": {
     "@tailwindcss/cli": "^4.1.12",
     "body-parser": "^2.2.0",
+    "connect-mongodb-session": "^5.0.0",
     "dotenv": "^17.2.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "mongodb": "^6.18.0",
     "mongoose": "^8.18.0",
     "mysql2": "^3.14.3",

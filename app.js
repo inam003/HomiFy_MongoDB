@@ -5,6 +5,16 @@ const hostRouter = require("./routes/hostRouter");
 const { authRouter } = require("./routes/authRouter");
 const { pageNotFound } = require("./controllers/errorController");
 const { default: mongoose } = require("mongoose");
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
+
+const MONGODB_URL =
+  "mongodb+srv://inamaslam003:inam_003@clusterone.l9tqz.mongodb.net/homify?retryWrites=true&w=majority&appName=ClusterOne";
+
+const store = new MongoDBStore({
+  uri: MONGODB_URL,
+  collection: "sessions",
+});
 
 const app = express();
 
@@ -13,12 +23,17 @@ app.set("views", "views");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded());
+app.use(
+  session({
+    secret: "intro-mongo",
+    resave: false,
+    saveUninitialized: true,
+    store: store,
+  })
+);
 
 app.use((req, res, next) => {
-  console.log(req.get("Cookie"));
-  req.isLoggedIn = req.get("Cookie")
-    ? req.get("Cookie").split("=")[1] === "true"
-    : false;
+  req.isLoggedIn = req.session.isLoggedIn;
   next();
 });
 
@@ -37,8 +52,6 @@ app.use(authRouter);
 app.use(pageNotFound);
 
 const port = 3002;
-const MONGODB_URL =
-  "mongodb+srv://inamaslam003:inam_003@clusterone.l9tqz.mongodb.net/homify?retryWrites=true&w=majority&appName=ClusterOne";
 
 mongoose
   .connect(MONGODB_URL)
