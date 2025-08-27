@@ -44,14 +44,23 @@
           >Add Home</a
         >
       </li>
+      <% } %> <% if (!isLoggedIn) { %>
       <li>
-        <% } %> <% if (!isLoggedIn) { %>
+        <a
+          href="/signup"
+          class="<%= currentPage === 'signup' ? 'bg-pink-400' : 'hover:bg-pink-400' %> py-2 px-4 rounded transition duration-300"
+          >SignUp</a
+        >
+      </li>
+      <li>
         <a
           href="/login"
           class="<%= currentPage === 'login' ? 'bg-pink-400' : 'hover:bg-pink-400' %> py-2 px-4 rounded transition duration-300"
           >Login</a
         >
-        <% } else { %>
+      </li>
+      <% } else { %>
+      <li>
         <form action="/logout" method="POST">
           <button
             type="submit"
@@ -60,8 +69,8 @@
             Logout
           </button>
         </form>
-        <% } %>
       </li>
+      <% } %>
     </ul>
   </nav>
 </header>

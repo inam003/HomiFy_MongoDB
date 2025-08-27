@@ -47,7 +47,6 @@ app.use((req, res, next) => {
   }
 });
 app.use("/host", hostRouter);
-app.use(authRouter);
 
 app.use(pageNotFound);
 
