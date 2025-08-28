@@ -9,6 +9,7 @@ exports.getLogin = (req, res) => {
     isLoggedIn: false,
     errors: [],
     oldInput: { email: "" },
+    user: {},
   });
 };
 
@@ -25,6 +26,7 @@ exports.getSignUp = (req, res) => {
       password: "",
       userType: "",
     },
+    user: {},
   });
 };
 
@@ -100,6 +102,7 @@ exports.postSignUp = [
           password,
           userType,
         },
+        user: {},
       });
     }
 
@@ -132,6 +135,7 @@ exports.postSignUp = [
             password,
             userType,
           },
+          user: {},
         });
       });
   },
@@ -149,6 +153,7 @@ exports.postLogin = async (req, res) => {
       oldInput: {
         email,
       },
+      user: {},
     });
   }
 
@@ -162,6 +167,7 @@ exports.postLogin = async (req, res) => {
       oldInput: {
         email,
       },
+      user: {},
     });
   }
 
