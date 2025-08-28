@@ -1,10 +1,14 @@
 const { check, validationResult } = require("express-validator");
+const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 
 exports.getLogin = (req, res) => {
   res.render("auth/login", {
     title: "Login",
     currentPage: "login",
     isLoggedIn: false,
+    errors: [],
+    oldInput: { email: "" },
   });
 };
 
@@ -98,12 +102,72 @@ exports.postSignUp = [
         },
       });
     }
-    res.redirect("/login");
+
+    bcrypt
+      .hash(password, 12)
+      .then((hashedPassword) => {
+        const user = new User({
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+          userType,
+        });
+        return user.save();
+      })
+      .then(() => {
+        res.redirect("/login");
+      })
+      .catch((error) => {
+        console.error("Error saving user:", error);
+        res.status(422).render("auth/signup", {
+          title: "SignUp",
+          currentPage: "signup",
+          isLoggedIn: false,
+          errors: [error.message],
+          oldInput: {
+            firstName,
+            lastName,
+            email,
+            password,
+            userType,
+          },
+        });
+      });
   },
 ];
 
-exports.postLogin = (req, res) => {
+exports.postLogin = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return res.status(401).render("auth/login", {
+      title: "Login",
+      currentPage: "login",
+      isLoggedIn: false,
+      errors: ["User doesn't exist"],
+      oldInput: {
+        email,
+      },
+    });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).render("auth/login", {
+      title: "Login",
+      currentPage: "login",
+      isLoggedIn: false,
+      errors: ["Invalid password"],
+      oldInput: {
+        email,
+      },
+    });
+  }
+
   req.session.isLoggedIn = true;
+  req.session.user = user;
+  await req.session.save();
   res.redirect("/");
 };
 
