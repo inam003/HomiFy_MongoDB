@@ -1,4 +1,5 @@
 const Home = require("../models/home");
+const fs = require("fs");
 
 exports.getHostHomes = (req, res) => {
   Home.find().then((registeredHomes) => {
@@ -42,7 +43,13 @@ exports.getEditHome = (req, res) => {
 };
 
 exports.postAddHome = (req, res) => {
-  const { houseName, price, location, rating, photo, description } = req.body;
+  const { houseName, price, location, rating, description } = req.body;
+  if (!req.file) {
+    return res.status(422).send("No file uploaded");
+  }
+
+  const photo = req.file.path;
+
   const homes = new Home({
     houseName,
     price,
@@ -58,16 +65,25 @@ exports.postAddHome = (req, res) => {
 };
 
 exports.postEditHome = (req, res) => {
-  const { id, houseName, price, location, rating, photo, description } =
-    req.body;
+  const { id, houseName, price, location, rating, description } = req.body;
+
   Home.findById(id)
     .then((home) => {
       home.houseName = houseName;
       home.price = price;
       home.location = location;
       home.rating = rating;
-      home.photo = photo;
       home.description = description;
+
+      if (req.file) {
+        fs.unlink(home.photo, (err) => {
+          if (err) {
+            console.log("Error deleting old photo:", err);
+          }
+        });
+        home.photo = req.file.path;
+      }
+
       home
         .save()
         .then(() => {

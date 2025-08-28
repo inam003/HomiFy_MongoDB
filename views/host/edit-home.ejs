@@ -6,7 +6,12 @@
       <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
         Edit Your Home
       </h1>
-      <form action="/host/edit-home" method="POST" class="space-y-6">
+      <form
+        action="/host/edit-home"
+        method="POST"
+        enctype="multipart/form-data"
+        class="space-y-6"
+      >
         <div>
           <input type="hidden" name="id" value="<%= home._id %>" />
           <label
@@ -80,6 +85,21 @@
 
         <div>
           <label
+            for="photo"
+            class="block text-sm font-medium text-gray-700 mb-2"
+            >Photo</label
+          >
+          <input
+            type="file"
+            name="photo"
+            id="photo"
+            value="<%= home.photo %>"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition duration-200"
+          />
+        </div>
+
+        <div>
+          <label
             for="description"
             class="block text-sm font-medium text-gray-700 mb-2"
             >Description</label
@@ -96,7 +116,6 @@
           >
         </div>
 
-        <input type="hidden" name="photo" value="/images/house6.png" />
         <button
           type="submit"
           class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300"

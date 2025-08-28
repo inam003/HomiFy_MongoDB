@@ -6,6 +6,7 @@ const { authRouter } = require("./routes/authRouter");
 const { pageNotFound } = require("./controllers/errorController");
 const { default: mongoose } = require("mongoose");
 const session = require("express-session");
+const multer = require("multer");
 const MongoDBStore = require("connect-mongodb-session")(session);
 
 const MONGODB_URL =
@@ -21,8 +22,48 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-app.use(express.static(path.join(__dirname, "public")));
+const randomString = (length) => {
+  const characters = "abcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, randomString(10) + "-" + file.originalname);
+  },
+});
+
+const fileType = (req, res, cb) => {
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type"), false);
+  }
+};
+
+const multerOptions = {
+  storage,
+  fileType,
+};
+
 app.use(express.urlencoded());
+app.use(multer(multerOptions).single("photo"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads/", express.static(path.join(__dirname, "uploads")));
+app.use("/host/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/homes/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(
   session({
     secret: "intro-mongo",

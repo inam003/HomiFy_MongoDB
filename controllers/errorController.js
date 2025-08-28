@@ -3,6 +3,6 @@ exports.pageNotFound = (req, res) => {
     title: "404 Not Found - Airbnb",
     currentPage: "404",
     isLoggedIn: req.isLoggedIn,
-    user: (req.session.user = user),
+    user: req.session.user,
   });
 };
