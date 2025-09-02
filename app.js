@@ -5,7 +5,6 @@ const hostRouter = require("./routes/hostRouter");
 const { authRouter } = require("./routes/authRouter");
 const { pageNotFound } = require("./controllers/errorController");
 const { default: mongoose } = require("mongoose");
-const { connectDB } = require("./utils/database");
 const session = require("express-session");
 const multer = require("multer");
 const MongoDBStore = require("connect-mongodb-session")(session);
@@ -13,17 +12,9 @@ require("dotenv").config();
 
 const MONGODB_URL = process.env.MONGODB_URL;
 
-if (!MONGODB_URL) {
-  console.error("MONGODB_URL environment variable is not set");
-}
-
 const store = new MongoDBStore({
   uri: MONGODB_URL,
   collection: "sessions",
-});
-
-store.on("error", function (error) {
-  console.log("Session store error:", error);
 });
 
 const app = express();
@@ -49,7 +40,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileType = (req, file, cb) => {
   if (
     file.mimetype === "image/jpeg" ||
     file.mimetype === "image/png" ||
@@ -63,7 +54,7 @@ const fileFilter = (req, file, cb) => {
 
 const multerOptions = {
   storage,
-  fileFilter,
+  fileFilter: fileType,
 };
 
 app.use(express.urlencoded());
@@ -100,16 +91,16 @@ app.use("/host", hostRouter);
 
 app.use(pageNotFound);
 
-// Initialize database connection for serverless
-connectDB().catch(console.error);
+const port = process.env.PORT || 3002;
 
-// For local development
-if (process.env.NODE_ENV !== "production") {
-  const port = process.env.PORT || 3002;
-  app.listen(port, () => {
-    console.log(`Server is running on port http://localhost:${port}`);
+mongoose
+  .connect(MONGODB_URL)
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(port, () => {
+      console.log(`Server is running on port http://localhost:${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
   });
-}
-
-// Export for Vercel
-module.exports = app;
