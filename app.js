@@ -91,7 +91,7 @@ app.use("/host", hostRouter);
 
 app.use(pageNotFound);
 
-const port = 3002;
+const port = process.env.PORT || 3002;
 
 mongoose
   .connect(MONGODB_URL)

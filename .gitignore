@@ -1,3 +1,6 @@
 node_modules/
 .env
 utils/databaseUtil.js
+uploads/
+*.log
+.DS_Store
