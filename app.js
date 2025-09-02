@@ -5,6 +5,7 @@ const hostRouter = require("./routes/hostRouter");
 const { authRouter } = require("./routes/authRouter");
 const { pageNotFound } = require("./controllers/errorController");
 const { default: mongoose } = require("mongoose");
+const { connectDB } = require("./utils/database");
 const session = require("express-session");
 const multer = require("multer");
 const MongoDBStore = require("connect-mongodb-session")(session);
@@ -99,15 +100,8 @@ app.use("/host", hostRouter);
 
 app.use(pageNotFound);
 
-// Connect to MongoDB
-mongoose
-  .connect(MONGODB_URL)
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error);
-  });
+// Initialize database connection for serverless
+connectDB().catch(console.error);
 
 // For local development
 if (process.env.NODE_ENV !== "production") {
