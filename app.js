@@ -8,9 +8,9 @@ const { default: mongoose } = require("mongoose");
 const session = require("express-session");
 const multer = require("multer");
 const MongoDBStore = require("connect-mongodb-session")(session);
+require("dotenv").config();
 
-const MONGODB_URL =
-  "mongodb+srv://inamaslam003:inam_003@clusterone.l9tqz.mongodb.net/homify?retryWrites=true&w=majority&appName=ClusterOne";
+const MONGODB_URL = process.env.MONGODB_URL;
 
 const store = new MongoDBStore({
   uri: MONGODB_URL,
